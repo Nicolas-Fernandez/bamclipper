@@ -1,40 +1,46 @@
 #!/bin/bash
 # bamclipper.sh
-VERSION=1.1.3
+VERSION="1.1.3"
 NTHREAD=1
-SAMTOOLS=${which samtools}
-PARALLEL=${which parallel}
+SAMTOOLS=$(which samtools)
+PARALLEL=$(which parallel)
 UPSTREAM=1
 DOWNSTREAM=5
-OUTPUT=$PWD
-SAMTOOLS_VERSION_REQUIRED=1.3.1
-PARALLEL_VERSION_REQUIRED=20130522
+OUTPUT=${PWD}
+SAMTOOLS_VERSION_REQUIRED="1.3.1"
+PARALLEL_VERSION_REQUIRED="20130522"
 
 
 # show usage if no option is provided
 if [[ "$#" -eq 0 ]]; then
-    echo >&2 "Program: BAMClipper (Remove primer sequence from BAM alignments by soft-clipping)"
-    echo >&2 "Version: $VERSION"
     echo >&2
-    echo >&2 "File mode"
-    echo >&2 "Usage: $0 -b BAM -p BEDPE [-n NTHREAD] [-s SAMTOOLS] [-g GNUPARALLEL] [-u UPSTREAM] [-d DOWNSTREAM]"
+    echo >&2 "Program ____ BAMClipper"
+    echo >&2 "Aim ________ Remove primer sequence from BAM alignments by soft-clipping"
+    echo >&2 "Version ____ ${VERSION}"
+    echo >&2
+    echo >&2 "Usage"
+    echo >&2
+    echo >&2 "~ File mode ~"
+    echo >&2 "$0 -b BAM -p BEDPE [-n NTHREAD] [-s SAMTOOLS] [-g GNUPARALLEL] [-u UPSTREAM] [-d DOWNSTREAM] [-o OUTPUT]"
+    echo >&2
     echo >&2 "Required arguments:"
     echo >&2 "    -b FILE    indexed BAM alignment file"
     echo >&2 "    -p FILE    BEDPE file of primer pair locations"
     echo >&2
-    echo >&2 "Pipe mode"
-    echo >&2 "Usage: bwa mem ref.fasta r1.fastq r2.fastq | $0 -i -p BEDPE [-n NTHREAD] [-s SAMTOOLS] [-g GNUPARALLEL] [-u UPSTREAM] [-d DOWNSTREAM] | ..."
+    echo >&2 "~ Pipe mode ~"
+    echo >&2 "bwa mem ref.fasta r1.fastq r2.fastq | $0 -i -p BEDPE [OPTIONS] | ..."
+    echo >&2
     echo >&2 "Required arguments:"
     echo >&2 "    -i         read SAM alignment from STDIN"
     echo >&2 "    -p FILE    BEDPE file of primer pair locations"
     echo >&2
-    echo >&2 "Options for either mode:"
-    echo >&2 "    -n INT     number of threads for clipprimer.pl and samtools sort (default: $NTHREAD)"
-    echo >&2 "    -s FILE    path to samtools executable (default: $SAMTOOLS)"
-    echo >&2 "    -g FILE    path to gnu parallel executable (default: $PARALLEL)"
-    echo >&2 "    -u INT     number of nucleotide upstream to 5' most nucleotide of primer (default: $UPSTREAM)"
-    echo >&2 "    -d INT     number of nucleotide downstream to 5' most nucleotide of primer (default: $DOWNSTREAM)"
-    echo >&2 "    -o DIR     path to write output (default: $OUTPUT)"
+    echo >&2 "Options for either modes:"
+    echo >&2 "    -n INT     number of threads for clipprimer.pl and samtools sort (default: ${NTHREAD})"
+    echo >&2 "    -s FILE    path to samtools executable (default: ${SAMTOOLS})"
+    echo >&2 "    -g FILE    path to gnu parallel executable (default: ${PARALLEL})"
+    echo >&2 "    -u INT     number of nucleotide upstream to 5' most nucleotide of primer (default: ${UPSTREAM})"
+    echo >&2 "    -d INT     number of nucleotide downstream to 5' most nucleotide of primer (default: ${DOWNSTREAM})"
+    echo >&2 "    -o DIR     path to write output (default: ${OUTPUT})"
     exit 1
 fi
 
