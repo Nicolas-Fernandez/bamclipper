@@ -50,13 +50,14 @@ while getopts ":ib:p:n:s:g:u:d:o:" o; do
 	    ;;
 	b)
 	    BAM=${OPTARG}
-	    [[ ! -f "$BAM" ]] && error "BAM file is not found ($BAM)"
-	    [[ ! -f "$BAM.bai" ]] && error "BAM file index $BAM.bai is not found. (Tips: $SAMTOOLS index $BAM)"
 	    BAMbn=$(basename "$BAM")
+	    [[ ! -f "$BAMbn.bam" ]] && error "BAM file not found ($BAMbn.bam)"
+	    [[ ! -f "$BAMbn.bai" ]] && error "BAM Indexes BAI file not found ($BAMbn.bai)"
 	    ;;
 	p)
 	    BEDPE=${OPTARG}
-	    [[ -f "$BEDPE" ]] || error "BEDPE file is not found ($BEDPE)"
+	    BEDPEbn=$(basename "$BEDPE")
+	    [[ ! -f "$BEDPEbn.bedpe" ]] && error "BEDPE file not found ($BEDPEbn.bedpe)"
 	    ;;
 	n)
 	    NTHREAD=${OPTARG}
@@ -114,7 +115,7 @@ else
     SAMTOOLS_VERSION=`"$SAMTOOLS" --version-only`
     [ "$(version "$SAMTOOLS_VERSION")" -lt "$(version "$SAMTOOLS_VERSION_REQUIRED")" ] && error "SAMtools version ($SAMTOOLS_VERSION) is not supported (supported version: at least $SAMTOOLS_VERSION_REQUIRED)."
 
-    "$SAMTOOLS" collate -O --output-fmt SAM "$BAM" "${BAMbn}.sort1" \
+    "$SAMTOOLS" collate -O --output-fmt SAM "${BAMbn}.bam" "${BAMbn}.sort1" \
     | "$SCRIPT_DIR"/injectseparator.pl \
     | "$PARALLEL" \
     -j "$NTHREAD" \
@@ -129,6 +130,11 @@ else
     --downstream $DOWNSTREAM" | "$SAMTOOLS" sort \
     -T "${BAMbn}.sort2" \
     -@ "$NTHREAD" \
-    > "${OUTPUT}/${BAMbn%.bam}.primerclipped.bam" \
-    && "$SAMTOOLS" index "${OUTPUT}/${BAMbn%.bam}.primerclipped.bam"
+    > "${OUTPUT}/${BAMbn%.bam}_primerclipped.bam" \
+    && \
+    "$SAMTOOLS" index \
+    -@ "$NTHREAD" \
+    -b \
+    "${OUTPUT}/${BAMbn%.bam}_primerclipped.bam" \
+    "${OUTPUT}/${BAMbn%.bam}_primerclipped.bai"
 fi
