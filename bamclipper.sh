@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # bamclipper.sh
 VERSION=1.1.3
 NTHREAD=1
