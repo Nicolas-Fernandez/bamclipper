@@ -14,13 +14,14 @@ PARALLEL_VERSION_REQUIRED="20130522"
 # show usage if no option is provided
 if [[ "$#" -eq 0 ]]; then
     echo >&2
-    echo >&2 "Program ____ BAMClipper"
-    echo >&2 "Aim ________ Remove primer sequence from BAM alignments by soft-clipping"
-    echo >&2 "Version ____ ${VERSION}"
+    echo >&2 "Program: BAMClipper"
+    echo >&2 "Aim: Remove primer sequence from BAM alignments by soft-clipping"
+    echo >&2 "Version:${VERSION}"
     echo >&2
-    echo >&2 "Usage"
+    echo >&2 "USAGES:"
     echo >&2
     echo >&2 "~ File mode ~"
+    echo >&2
     echo >&2 "$0 -b BAM -p BEDPE [-n NTHREAD] [-s SAMTOOLS] [-g GNUPARALLEL] [-u UPSTREAM] [-d DOWNSTREAM] [-o OUTPUT]"
     echo >&2
     echo >&2 "Required arguments:"
@@ -28,13 +29,14 @@ if [[ "$#" -eq 0 ]]; then
     echo >&2 "    -p FILE    BEDPE file of primer pair locations"
     echo >&2
     echo >&2 "~ Pipe mode ~"
+    echo >&2
     echo >&2 "bwa mem ref.fasta r1.fastq r2.fastq | $0 -i -p BEDPE [OPTIONS] | ..."
     echo >&2
     echo >&2 "Required arguments:"
     echo >&2 "    -i         read SAM alignment from STDIN"
     echo >&2 "    -p FILE    BEDPE file of primer pair locations"
     echo >&2
-    echo >&2 "Options for either modes:"
+    echo >&2 "Options (for either modes):"
     echo >&2 "    -n INT     number of threads for clipprimer.pl and samtools sort (default: ${NTHREAD})"
     echo >&2 "    -s FILE    path to samtools executable (default: ${SAMTOOLS})"
     echo >&2 "    -g FILE    path to gnu parallel executable (default: ${PARALLEL})"
