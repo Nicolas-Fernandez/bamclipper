@@ -2,7 +2,6 @@ BAMClipper
 ==========
 Remove gene-specific primer sequences from SAM/BAM alignments of PCR amplicons by soft-clipping
 
-[Download latest version in a ZIP package](https://github.com/tommyau/bamclipper/zipball/master)
 
 ### Dependencies, as tested on 64-bit macOS Monterey v.12.3.1
 * [SAMtools](http://www.htslib.org/download/) (at least version 1.3.1)
@@ -17,8 +16,9 @@ Given a BAM file called **_NAME_.bam**, a new BAM file (**_NAME_.primerclipped.b
 _Notes_: For the sake of performance and simplicity, soft-clipping is performed solely based on genomic coordinates without involving the underlying sequence. Reference sequence names and coordinates of BAM and BEDPE are assumed to be derived from identical reference sequences (e.g. hg19).
 
 *Required arguments*
-- **-b** _FILE_: indexed BAM alignment file
-- **-p** _FILE_: [BEDPE](http://bedtools.readthedocs.io/en/latest/content/general-usage.html#bedpe-format) file of primer pair locations
+- **-b** _FILE_: indexed alignments BAM and BAI files
+- **-p** _FILE_: primer pair locations in BEDPE file format
+_http://bedtools.readthedocs.io/en/latest/content/general-usage.html#bedpe-format_
 
 *Options*
 - **-n** _INT_: number of threads for clipprimer.pl (the workhorse Perl script of BAMClipper) and samtools sort [1]
@@ -26,7 +26,7 @@ _Notes_: For the sake of performance and simplicity, soft-clipping is performed 
 - **-g** _FILE_: path to gnu parallel executable [parallel]
 - **-u** _INT_: number of nucleotide upstream to 5' most nucleotide of primer (in addition to 5' most nucleotide of primer) for assigning alignments to primers based on the alignment starting position. [1]
 - **-d** _INT_: number of nucleotide downstream to 5' most nucleotide of primer (in addition to 5' most nucleotide of primer) for assigning alignments to primers based on the alignment starting position. [5]
-- **-o** _DIR_: path to write output
+- **-o** _DIR_: path to write output [current directory]
 
 
 Citations
