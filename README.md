@@ -11,7 +11,15 @@ Remove gene-specific primer sequences from SAM/BAM alignments of PCR amplicons b
 `bamclipper.sh` soft-clips gene-specific primers from BAM alignment file based on *genomic coordinates* of primer pairs in BEDPE format.
 
 ```shell
-./bamclipper.sh -b _BAM_ -p _BEDPE_ [-n _NTHREAD_] [-s _SAMTOOLS_] [-g _GNUPARALLEL_] [-u _UPSTREAM_] [-d _DOWNSTREAM_] [-o _OUTPUT_]
+./bamclipper.sh
+                -b _BAM_
+                -p _BEDPE_
+                [-n _NTHREAD_]
+                [-s _SAMTOOLS_]
+                [-g _GNUPARALLEL_]
+                [-u _UPSTREAM_]
+                [-d _DOWNSTREAM_]
+                [-o _OUTPUT_]
 ```
 Given a BAM file called **_NAME_.bam**, a new BAM file (**_NAME_.primerclipped.bam**) and its associated index (**_NAME_.primerclipped.bam.bai**) will be generated in the current working directory.
 
