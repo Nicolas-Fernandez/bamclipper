@@ -2,8 +2,8 @@
 # bamclipper.sh
 VERSION=1.1.3
 NTHREAD=1
-SAMTOOLS="samtools"
-PARALLEL="parallel"
+SAMTOOLS=${which samtools}
+PARALLEL=${which parallel}
 UPSTREAM=1
 DOWNSTREAM=5
 OUTPUT=$PWD
@@ -29,12 +29,12 @@ if [[ "$#" -eq 0 ]]; then
     echo >&2 "    -p FILE    BEDPE file of primer pair locations"
     echo >&2
     echo >&2 "Options for either mode:"
-    echo >&2 "    -n INT     number of threads for clipprimer.pl and samtools sort [$NTHREAD]"
-    echo >&2 "    -s FILE    path to samtools executable [$SAMTOOLS]"
-    echo >&2 "    -g FILE    path to gnu parallel executable [$PARALLEL]"
-    echo >&2 "    -u INT     number of nucleotide upstream to 5' most nucleotide of primer [$UPSTREAM]"
-    echo >&2 "    -d INT     number of nucleotide downstream to 5' most nucleotide of primer [$DOWNSTREAM]"
-    echo >&2 "    -o DIR     path to write output [$OUTPUT]"
+    echo >&2 "    -n INT     number of threads for clipprimer.pl and samtools sort (default: $NTHREAD)"
+    echo >&2 "    -s FILE    path to samtools executable (default: $SAMTOOLS)"
+    echo >&2 "    -g FILE    path to gnu parallel executable (default: $PARALLEL)"
+    echo >&2 "    -u INT     number of nucleotide upstream to 5' most nucleotide of primer (default: $UPSTREAM)"
+    echo >&2 "    -d INT     number of nucleotide downstream to 5' most nucleotide of primer (default: $DOWNSTREAM)"
+    echo >&2 "    -o DIR     path to write output (default: $OUTPUT)"
     exit 1
 fi
 
