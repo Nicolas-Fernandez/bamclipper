@@ -58,14 +58,13 @@ while getopts ":ib:p:n:s:g:u:d:o:" o; do
 	    ;;
 	b)
 	    BAM=${OPTARG}
-	    BAMbn=$(basename "$BAM")
-	    [[ ! -f "$BAMbn.bam" ]] && error "BAM file not found ($BAMbn.bam)"
-	    [[ ! -f "$BAMbn.bai" ]] && error "BAM Indexes BAI file not found ($BAMbn.bai)"
-	    ;;
+	    [[ ! -f "$BAM" ]] && error "BAM file not found ($BAM)"
+	    [[ ! -f "$BAM.bai" ]] && error "BAM Indexes BAI file not found ($BAM.bai)"
+            BAMbn=$(basename "$BAM")
+            ;;
 	p)
 	    BEDPE=${OPTARG}
-	    BEDPEbn=$(basename "$BEDPE")
-	    [[ ! -f "$BEDPEbn.bedpe" ]] && error "BEDPE file not found ($BEDPEbn.bedpe)"
+	    [[ ! -f "$BEDPE" ]] || error "BEDPE file not found ($BEDPE)"
 	    ;;
 	n)
 	    NTHREAD=${OPTARG}
