@@ -58,17 +58,17 @@ while getopts ":ib:p:n:s:g:u:d:o:" o; do
 	    ;;
 	b)
 	    BAM=${OPTARG}
-	    [[ ! -f "$BAM" ]] && error "BAM file not found ($BAM)"
-	    [[ ! -f "$BAM.bai" ]] && error "BAM Indexes BAI file not found ($BAM.bai)"
-            BAMbn=$(basename "$BAM")
+	    [[ ! -f "${BAM}" ]] && error "BAM file not found (${BAM})"
+	    [[ ! -f "{$BAM}.bai" ]] && error "BAM Indexes BAI file not found (${BAM}.bai)"
+            BAMbn=$(basename "${BAM}")
             ;;
 	p)
 	    BEDPE=${OPTARG}
-	    [[ ! -f "$BEDPE" ]] || error "BEDPE file not found ($BEDPE)"
+	    [[ -f "{$BEDPE}" ]] || error "BEDPE file not found (${BEDPE})"
 	    ;;
 	n)
 	    NTHREAD=${OPTARG}
-	    [[ "$NTHREAD" -ge 1 ]] || error "NTHREAD requires non-zero integer"
+	    [[ "${NTHREAD}" -ge 1 ]] || error "NTHREAD requires non-zero integer"
 	    ;;
 	s)
 	    SAMTOOLS=${OPTARG}
@@ -78,70 +78,71 @@ while getopts ":ib:p:n:s:g:u:d:o:" o; do
 	    ;;
 	u)
 	    UPSTREAM=${OPTARG}
-	    [[ "$UPSTREAM" =~ ^[0-9]+$ ]] || error "UPSTREAM requires non-negative integer"
-	    [[ "$UPSTREAM" -ge 0 ]] || error "UPSTREAM requires non-negative integer"
+	    [[ "${UPSTREAM}" =~ ^[0-9]+$ ]] || error "UPSTREAM requires non-negative integer"
+	    [[ "${UPSTREAM}" -ge 0 ]] || error "UPSTREAM requires non-negative integer"
 	    ;;
 	d)
 	    DOWNSTREAM=${OPTARG}
-	    [[ "$DOWNSTREAM" =~ ^[0-9]+$ ]] || error "DOWNSTREAM requires non-negative integer"
-	    [[ "$DOWNSTREAM" -ge 0 ]] || error "DOWNSTREAM requires non-negative integer"
+	    [[ "${DOWNSTREAM}" =~ ^[0-9]+$ ]] || error "DOWNSTREAM requires non-negative integer"
+	    [[ "${DOWNSTREAM}" -ge 0 ]] || error "DOWNSTREAM requires non-negative integer"
 	    ;;
 	o)
 	    OUTPUT=${OPTARG}
-	    [[ ! -d "$OUTPUT" ]] && error "OUTPUT is not a valid directory ($OUTPUT)."
+	    [[ ! -d "${OUTPUT}" ]] && error "OUTPUT is not a valid directory (${OUTPUT})."
 	    ;;
 	*)
-	    error "Invalid option: -$OPTARG"
+	    error "Invalid option: -${OPTARG}"
 	    ;;
     esac
 done
 shift $((OPTIND-1))
 
 # assert (either BAM file or PIPE mode, but not both) and BEDPE are defined
-([[ -z "$BAM" ]] && [[ -z "$PIPE" ]]) && error "BAM file (-b) or Pipe mode (-i) is not defined"
-([[ ! -z "$BAM" ]] && [[ "$PIPE" == 1 ]]) && error "File mode (-b) and Pipe mode (-i) cannot be defined simultaneously"
-[[ -z "$BEDPE" ]] && error "BEDPE file (-p) is not defined"
+([[ -z "${BAM}" ]] && [[ -z "$PIPE" ]]) && error "BAM file (-b) or Pipe mode (-i) is not defined"
+([[ ! -z "${BAM}" ]] && [[ "$PIPE" == 1 ]]) && error "File mode (-b) and Pipe mode (-i) cannot be defined simultaneously"
+[[ -z "${BEDPE}" ]] && error "BEDPE file (-p) is not defined"
 
 # Absolute path for output
-OUTPUT=$(readlink -e $OUTPUT)
+OUTPUT=$(realpath ${OUTPUT})
 
 # check parallel & version
-"$PARALLEL" --minversion $PARALLEL_VERSION_REQUIRED >/dev/null 2>&1 || error "GNU Parallel (provided path: $PARALLEL) is not running properly. Please check the path and/or version (at least $PARALLEL_VERSION_REQUIRED)."
+"${PARALLEL}" --minversion ${PARALLEL_VERSION_REQUIRED} >/dev/null 2>&1 || error "GNU Parallel (provided path: ${PARALLEL}) is not running properly. Please check the path and/or version (at least $PARALLEL_VERSION_REQUIRED)."
 
 # run bamclipper
-SCRIPT_PATH="$(readlink -f $0)"
-SCRIPT_DIR="$(dirname $SCRIPT_PATH)"
-if [ "$PIPE" == 1 ]; then
+SCRIPT_PATH="$(realpath $0)"
+SCRIPT_DIR="$(dirname ${SCRIPT_PATH})"
+if [[ "${PIPE}" = 1 ]]
+then
     # pipe mode
-    cat /dev/stdin | "$SCRIPT_DIR"/injectseparator.pl | "$PARALLEL" -j "$NTHREAD" --keep-order --remove-rec-sep --pipe --remove-rec-sep --recend '__\n' --block 10M "$SCRIPT_DIR/clipprimer.pl --in $BEDPE --upstream $UPSTREAM --downstream $DOWNSTREAM"
+    cat /dev/stdin | "${SCRIPT_DIR}"/injectseparator.pl | "${PARALLEL}" -j "${NTHREAD}" --keep-order --remove-rec-sep --pipe --remove-rec-sep --recend '__\n' --block 10M "${SCRIPT_DIR}/clipprimer.pl --in ${BEDPE} --upstream ${UPSTREAM} --downstream ${DOWNSTREAM}"
 else
     # file mode
     # check samtools & version
     function version { echo "$@" | cut -f1 -d"+" | awk -F. '{ printf("%03d%03d%03d\n", $1,$2,$3); }'; }
-    "$SAMTOOLS" --version-only >/dev/null 2>&1 || error "SAMtools (provided path: $SAMTOOLS) is not running properly. Please check the path and/or version (at least $SAMTOOLS_VERSION_REQUIRED)"
-    SAMTOOLS_VERSION=`"$SAMTOOLS" --version-only`
-    [ "$(version "$SAMTOOLS_VERSION")" -lt "$(version "$SAMTOOLS_VERSION_REQUIRED")" ] && error "SAMtools version ($SAMTOOLS_VERSION) is not supported (supported version: at least $SAMTOOLS_VERSION_REQUIRED)."
+    "$SAMTOOLS" --version-only >/dev/null 2>&1 || error "SAMtools (provided path: ${SAMTOOLS}) is not running properly. Please check the path and/or version (at least ${SAMTOOLS_VERSION_REQUIRED})"
+    SAMTOOLS_VERSION=`"${SAMTOOLS}" --version-only`
+    [ "$(version "${SAMTOOLS_VERSION}")" -lt "$(version "${SAMTOOLS_VERSION_REQUIRED}")" ] && error "SAMtools version (${SAMTOOLS_VERSION}) is not supported (supported version: at least $SAMTOOLS_VERSION_REQUIRED)."
 
-    "$SAMTOOLS" collate -O --output-fmt SAM "${BAMbn}.bam" "${BAMbn}.sort1" \
-    | "$SCRIPT_DIR"/injectseparator.pl \
-    | "$PARALLEL" \
-    -j "$NTHREAD" \
+    "$SAMTOOLS" collate -O --output-fmt SAM "${BAM}" "${BAM}.sort1" \
+    | "${SCRIPT_DIR}"/injectseparator.pl \
+    | "${PARALLEL}" \
+    -j "${NTHREAD}" \
     --keep-order \
     --remove-rec-sep \
     --pipe \
     --remove-rec-sep \
     --recend '__\n' \
-    --block 10M "$SCRIPT_DIR/clipprimer.pl \
-    --in $BEDPE \
-    --upstream $UPSTREAM \
-    --downstream $DOWNSTREAM" | "$SAMTOOLS" sort \
-    -T "${BAMbn}.sort2" \
-    -@ "$NTHREAD" \
-    > "${OUTPUT}/${BAMbn%.bam}_primerclipped.bam" \
+    --block 10M "${SCRIPT_DIR}/clipprimer.pl \
+    --in ${BEDPE} \
+    --upstream ${UPSTREAM} \
+    --downstream ${DOWNSTREAM}" | "${SAMTOOLS}" sort \
+    -T "${BAM}.sort2" \
+    -@ "${NTHREAD}" \
+    > "${OUTPUT}/${BAMbn}_primerclipped.bam" \
     && \
     "$SAMTOOLS" index \
     -@ "$NTHREAD" \
     -b \
-    "${OUTPUT}/${BAMbn%.bam}_primerclipped.bam" \
-    "${OUTPUT}/${BAMbn%.bam}_primerclipped.bai"
+    "${OUTPUT}/${BAMbn}_primerclipped.bam" \
+    "${OUTPUT}/${BAMbn}_primerclipped.bai"
 fi
